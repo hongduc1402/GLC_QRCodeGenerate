@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo QR Code Link</title>
+</head>
+<body>
+
+<form id="qrForm">
+    <label for="textInput">Nhập Text:</label>
+    <textarea id="textInput" name="textInput" placeholder="Nhập text..." rows="9" style="width: 100%;" oninput="generateQRLink()"></textarea>
+    <br>
+    <label for="sizeInput">Kích thước:</label>
+    <input type="text" id="sizeInput" name="sizeInput" placeholder="350x350" value="350x350">
+</form>
+
+<div id="result"></div>
+
+<div style="margin-top: 3em;">
+    <button type="button" onclick="copyLink()" style="font-size: 16px;">Copy Link</button>
+    <button type="button" onclick="openLink()" style="font-size: 16px;">Mở Link</button>
+</div>
+
+<script>
+    function generateQRLink() {
+        var textInput = document.getElementById("textInput").value;
+        var sizeInput = document.getElementById("sizeInput").value;
+
+        // thay thế ký tự '#' thành '%23'
+        var encodedData = encodeURIComponent(textInput).replace(/#/g, '%23');
+
+        // Tạo link
+        var qrCodeURL = "http://192.168.3.112:8000/generate_qr?data=" + encodedData + "&size=" + sizeInput;
+
+        // Hiển thị link dưới dạng hyperlink
+        var linkElement = document.createElement("a");
+        linkElement.href = qrCodeURL;
+        linkElement.textContent = qrCodeURL;
+
+        // Xóa nội dung cũ và thêm link mới vào div
+        var resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = "";  // Xóa nội dung cũ
+        resultDiv.appendChild(linkElement);
+    }
+
+    // Gọi hàm generateQRLink() khi ô textInput thay đổi giá trị
+    document.getElementById("textInput").addEventListener("input", generateQRLink);
+
+    // tạo link khi trang web được load
+    generateQRLink();
+
+    function copyLink() {
+        var linkElement = document.createElement("input");
+        var resultDiv = document.getElementById("result");
+
+        // Lấy nội dung của link và đưa vào input
+        linkElement.value = resultDiv.textContent;
+
+        document.body.appendChild(linkElement);
+        linkElement.select();
+
+        // Copy nội dung của input vào clipboard
+        document.execCommand("copy");
+
+        // Xóa input khỏi trang
+        document.body.removeChild(linkElement);
+    }
+
+    function openLink() {
+        var resultDiv = document.getElementById("result");
+        var linkURL = resultDiv.textContent;
+
+        // Mở link
+        window.open(linkURL, "_blank");
+    }
+</script>
+
+</body>
+</html>
